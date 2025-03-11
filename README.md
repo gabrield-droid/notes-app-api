@@ -281,7 +281,7 @@ The other properties are input by the client.
             </td>
          </tr>
          <tr>
-            <td>1</td>
+            <td>2</td>
             <td>There are no books</td>
             <td>
                <pre>
