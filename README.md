@@ -14,7 +14,7 @@ This project is intended as a learning tool. This current version is not yet des
 Data example:
 ```json
 {
-   "id": "V1StGXR8_Z5jdHi6B-myT",
+   "id": "V1StGXR8_Z5jdHi6B",
    "title": "Sejarah JavaScript",
    "createdAt": "2020-12-23T23:00:09.686Z",
    "updatedAt": "2020-12-23T23:00:09.686Z",
@@ -114,7 +114,7 @@ The other properties are input by the client.
 
 	   <Directory /var/www/notes-php-api>
 		   RewriteEngine On
-		   RewriteRule ^([A-Za-z0-9\/]+)$ index.php
+		   RewriteRule ^([A-Za-z0-9\/_-]+)$ index.php
 	   </Directory>
 
 	   # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
@@ -422,7 +422,7 @@ The other properties are input by the client.
 ### 5. Deleting a note
    Request:
    * Method: **DELETE**
-   * Endpoint: **books/{bookId}**
+   * Endpoint: **/notes/{noteId}**
 
    Response:
    <table>
