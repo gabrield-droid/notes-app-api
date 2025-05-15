@@ -1,26 +1,33 @@
 <?php
     $note_Id = substr($notePath, 1);
 
-    $defined = FALSE;
+    $stmt = $db_con->prepare("SELECT * FROM notes WHERE id = ?");
+    $stmt->bind_param("s", $note_Id); $stmt->execute();
+    $stmt->bind_result($n_id, $n_title, $n_body, $n_tags, $n_createdAt, $n_updatedAt);
 
-    foreach (apcu_fetch('notes') as $note) {
-        if ($note['id'] == $note_Id) {
-            $defined = TRUE;
+    if ($stmt->fetch()) {
+        $tags = explode(", ", $n_tags);
 
-            http_response_code(200);
-            $response['status'] = 'success';
-            $response['data']['note'] = $note;
+        $note = [];
+        $note['id'] = $n_id;
+        $note['title'] = $n_title;
+        $note['createdAt'] = $n_createdAt;
+        $note['updatedAt'] = $n_updatedAt;
+        $note['tags'] = $tags;
+        $note['body'] = $n_body;
 
-            echo json_encode($response);
-            break;
-        }
-    }
+        http_response_code(200);
+        $response['status'] = 'success';
+        $response['data']['note'] = $note;
 
-    if ($defined == FALSE) {
+        echo json_encode($response);
+    } else {
         http_response_code(404);
         $response['status'] = 'fail';
         $response['message'] = 'Catatan tidak ditemukan';
 
         echo json_encode($response);
     }
+
+    $stmt->close();
 ?>

@@ -1,34 +1,36 @@
 <?php
     $note_Id = substr($notePath, 1);
-    $defined = FALSE;
 
-    $notes = apcu_fetch('notes');
-    for ($i=0; $i < count($notes); $i++) { 
-        if ($notes[$i]['id'] == $note_Id) {
-            $defined = TRUE;
-            $data_in_json = json_decode(file_get_contents('php://input'));
+    $stmt = $db_con->prepare("SELECT id FROM notes WHERE id = ?");
+    $stmt->bind_param("s", $note_Id); $stmt->execute();
+    $stmt->bind_result($n_id);
 
-            $notes[$i]['title'] = $data_in_json->{'title'};
-            $notes[$i]['tags'] = $data_in_json->{'tags'};
-            $notes[$i]['body'] = $data_in_json->{'body'};
-            $notes[$i]['updatedAt'] = (new DateTime())->format('Y-m-d\TH:i:s.v\Z');
+    if ($stmt->fetch()) {
+        $stmt->close();
+        $data_in_json = json_decode(file_get_contents('php://input'));
 
-            apcu_store('notes', $notes);
+        $tags = implode(", ", $data_in_json->{'tags'});
+        $updatedAt = date_format(date_create(), 'Y-m-d\TH:i:s.v\Z');
 
-            http_response_code(200);
-            $response['status'] = 'success';
-            $response['message'] = 'Catatan berhasil diperbarui';
+        $stmt = $db_con->prepare("UPDATE notes SET
+            title = ?, tags = ?, body = ?, updatedAt = ?
+        WHERE id = ?");
 
-            echo json_encode($response);
-            break;
-        }
-    }
+        $stmt->bind_param("sssss", $data_in_json->{'title'}, $tags, $data_in_json->{'body'}, $updatedAt, $n_id);
+        $stmt->execute();
 
-    if ($defined == FALSE) {
+        http_response_code(200);
+        $response['status'] = 'success';
+        $response['message'] = 'Catatan berhasil diperbarui';
+
+        echo json_encode($response);
+    } else {
         http_response_code(404);
         $response['status'] = 'fail';
         $response['message'] = 'Gagal memperbarui catatan. Id tidak ditemukan';
 
         echo json_encode($response);
     }
+
+    $stmt->close();
 ?>

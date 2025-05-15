@@ -1,40 +1,34 @@
 <?php
-    require("$functions_dir/id_generator.php");
+    require($functions_dir."/id_generator.php");
     
     $data_in_json = json_decode(file_get_contents('php://input'));
 
-    $newNote = []; 
-    $newNote['title'] = $data_in_json->{'title'};
-    $newNote['tags'] = $data_in_json->{'tags'};
-    $newNote['body'] = $data_in_json->{'body'};
+    $stmt = $db_con->prepare("INSERT INTO notes SET 
+        id = ?, title = ?, body = ?, tags = ?, createdAt = ?, updatedAt = ?");
 
-    $newNote['id'] = generate_id(16);
+    $tags = implode(", ", $data_in_json->{'tags'});
+    $id = generate_id(16);
 
-    $newNote['createdAt'] = (new DateTime())->format('Y-m-d\TH:i:s.v\Z');
-    $newNote['updatedAt'] = $newNote['createdAt'];
+    $createdAt = date_format(date_create(), 'Y-m-d\TH:i:s.v\Z');
+    $updatedAt = $createdAt;
 
-    $notes = apcu_fetch('notes');
-    array_push($notes, $newNote);
-    apcu_store('notes', $notes);
+    $stmt->bind_param("ssssss", $id, $data_in_json->{'title'}, $data_in_json->{'body'}, $tags, $createdAt, $updatedAt);
+    $stmt->execute();
 
-    $isSuccess = FALSE;
-    foreach (apcu_fetch('notes') as $note) {
-        if ($note['id'] == $newNote['id']) {
-            $isSuccess = TRUE;
-            break;
-        }
-    }
+    $stmt->prepare("SELECT id FROM notes WHERE id = ?");
+    $stmt->bind_param("s", $id); $stmt->execute();
+    $stmt->bind_result($note_id);
 
-    $response = array("status" => "fail", "message" => "Catatan gagal ditambahkan");
-
-    if ($isSuccess) {
+    if ($stmt->fetch()) {
         http_response_code(201);
-        $response['status'] = 'success';
-        $response['message'] = 'Catatan berhasil ditambahkan';
-        $response['data']['noteId'] = $newNote['id'];
+        $response = array("status" => "success", "message" => "Catatan berhasil ditambahkan");
+        $response['data']['noteId'] = $id;
         echo json_encode($response);
     } else {
         http_response_code(500);
+        $response = array("status" => "fail", "message" => "Catatan gagal ditambahkan");
         echo json_encode($response);
     }
+
+    $stmt->close();
 ?>
