@@ -3,7 +3,7 @@
 This is a RESTful API that manages notes. It can add, edit, delete, and show notes. It is based on [notes-app-back-end](https://github.com/gabrield-droid/notes-app-back-end).
 
 ### Warning:
-The current configuration allows CORS for all origins, which is insecure for production environments. You could implement authentication or configure the CORS securely yourself as workarounds.
+The current configuration allows CORS for all origins, which can be insecure in production environments. To mitigate this, consider implementing authentication or configuring CORS with more restrictive settings.
 
 ## Data structure:
 Data example:
