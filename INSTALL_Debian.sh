@@ -44,7 +44,7 @@ echo "?>" >> mysql/db_config.php
 echo " Done"
 
 echo -e "\nVIRTUAL HOST CONFIGURATION FILE"
-echo -n "Enter the VirtualHost Configuration file name (Default: attendance-app.conf): "
+echo -n "Enter the VirtualHost Configuration file name (Default: notes-app-api.conf): "
 read VH_NAME
 if [[ -z "$VH_NAME" ]]; then
     VH_NAME="notes-app-api.conf"
@@ -79,11 +79,11 @@ echo -e "\nEnabling VirtualHost configuration file ..."
 sudo a2ensite $VH_NAME
 echo " Done"
 
-echo -e "\nEnabling Apache mod_rewrite module ..."
+echo -e "\nEnabling Apache2 mod_rewrite module ..."
 sudo a2enmod rewrite
 echo " Done"
 
-echo -e "\nEnabling Apache mod_headers module ..."
+echo -e "\nEnabling Apache2 mod_headers module ..."
 sudo a2enmod headers
 echo " Done"
 
